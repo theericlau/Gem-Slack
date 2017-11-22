@@ -3,6 +3,10 @@ import PropTypes from 'prop-types';
 import SignIn from './Signin.jsx';
 import Chat from './Chat.jsx';
 import axios from 'axios';
+import openSocket from 'socket.io-client';
+import Sockets from './Sockets.jsx';
+
+const socket = openSocket('http://localhost:4000');
 
 /**
  * Description:
@@ -12,8 +16,7 @@ import axios from 'axios';
  * It is the only component that communicates with the server.
  *
  * @param - none.
- */
-class App extends Component {/**
+ *
  * Description:
  * App component renders all views for the application.
  * Its State holds all data and disseminates it to all
@@ -64,6 +67,27 @@ class App extends Component {
     //       RoomMsgs: this.state.RoomMsgs.push(SocketReturnedData[msg])
     //     })
     //   }
+    // socket.on('new message', (message) => {
+    //   this.setState({ messages: this.state.messages.concat([message]) });
+    // });
+
+    // socket.on('old messages', (message) => {
+    //   this.setState({ messages: message });
+    // });
+
+    socket.on('sign in', (data) => {
+      // this.setState({
+      //   username: result.data.username,
+      //   userImgUrl: result.data.userImgUrl,
+      //   myRooms: result.data.myRooms,
+      //   currentRoom: 'Lobby',
+      //   roomMsgs: result.data.roomMsgs,
+      //   usersInRoom: result.data.usersInRoom
+      // }, () => {
+      //   this.changeView('chat');
+      // });
+      console.log('im in the sign in data', data);
+    });
   }
 
   /**
@@ -73,6 +97,7 @@ class App extends Component {
    *
    * @param {String} view - View to update State with ('signin', 'chat', 'newdm')
    */
+
   changeView(view) {
     this.setState({
       view: view
@@ -106,6 +131,7 @@ class App extends Component {
    *
    * @param {String} message - View to render ('signin', 'chat', 'newdm')
    */
+  //  Don't need this addMessage
   addMessage(message) {
     let newMessages = this.state.messages;
     newMessages.push(message);
@@ -145,22 +171,26 @@ class App extends Component {
    * @param {String} username - Username typed in by the user
    */
   sendUserNameToServer(username) {
+    // this.setState({
+    //   name: username
+    //   //messages: array of message objects from socket
+    //   //currentUsers: array of all connected users from socket
+    // })
+    // this.changeView('chat');
 
-    this.ajaxRequest('post', '/sendUserNameToServer', {username: username})
-    .then(result => {
-
-      this.setState({
-        username: result.data.username,
-        userImgUrl: result.data.userImgUrl,
-        myRooms: result.data.myRooms,
-        currentRoom: 'Lobby',
-        roomMsgs: result.data.roomMsgs,
-        usersInRoom: result.data.usersInRoom
-      }, () => {
-        //this.changeView('chat');
-      });
-
-    });
+    // this.ajaxRequest('post', '/sendUserNameToServer', {username: username})
+    // .then(result => {
+      Sockets.signInUser(username);
+      // this.setState({
+      //   username: result.data.username,
+      //   userImgUrl: result.data.userImgUrl,
+      //   myRooms: result.data.myRooms,
+      //   currentRoom: 'Lobby',
+      //   roomMsgs: result.data.roomMsgs,
+      //   usersInRoom: result.data.usersInRoom
+      // }, () => {
+      //   this.changeView('chat');
+      // });
   }
 
   /**
@@ -173,8 +203,8 @@ class App extends Component {
    */
   getRoomData(roomname) {
 
-    this.ajaxRequest('get', '/getroomdata', {roomname: roomname})
-    .then(result => {
+    // this.ajaxRequest('get', '/getroomdata', {roomname: roomname})
+    // .then(result => {
 
       this.setState({
         currentRoom: roomname,
@@ -183,8 +213,6 @@ class App extends Component {
       }, () => {
         //this.changeView('chat');
       });
-
-    });
   }
 
 
@@ -201,13 +229,13 @@ class App extends Component {
    * @returns {Promise} Using the .then((results) => {}) method, the results from
    * the Request can be retrieved by any function utilizing this helper function.
    */
-  ajaxRequest(reqType, route, data) {
-    if (reqType === 'post') {
-      return axios.post(route, data)
-    } else if (reqType === 'get') {
-      return axios.get(route)
-    }
-  }
+  // ajaxRequest(reqType, route, data) {
+  //   if (reqType === 'post') {
+  //     return axios.post(route, data)
+  //   } else if (reqType === 'get') {
+  //     return axios.get(route)
+  //   }
+  // }
 
   /**
    * render:
